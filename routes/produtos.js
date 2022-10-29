@@ -9,9 +9,25 @@ router.get('/', (req, res, next) => {
 
         connection.query(
             'SELECT * FROM produtos',
-            (error, resultado) => {
+            (error, result) => {
                 if (error) { return res.status(500).send({ error: error }) }
-                return res.status(201).send({ response: resultado })
+
+                const response = {
+                    quantidade: result.length,
+                    produtos: result.map(prod => {
+                        return {
+                            id_produto: prod.id_produto,
+                            nome: prod.nome,
+                            valor: prod.valor,
+                            request: {
+                                tipo: 'GET',
+                                descricao: 'Retornando todos os produtos',
+                                url: 'http://localhost:3000/produtos/' + prod.id_produto
+                            }
+                        }
+                    })
+                }
+                return res.status(201).send(response)
             }
         )
     })
@@ -24,21 +40,27 @@ router.post('/', (req, res, next) => {
             'INSERT INTO produtos (nome, valor) VALUES (?, ?)',
             [req.body.nome, req.body.valor],
 
-            (error, resultado) => {
+            (error, result) => {
                 connection.release();
 
-                if (error) {
-                    return res.status(500).send({
-                        error: error,
-                        response: null
-                    })
-                }
-                res.status(201).send({
+                if (error) { return res.status(500).send({ error: error }) }
+
+                const response = {
                     mensagem: 'Produto inserido com sucesso!',
-                    id_produto: resultado.insertId
-                })
+                    produtoCriado: {
+                        id_produto: result.id_produto,
+                        nome: req.body.nome,
+                        valor: req.body.valor,
+                        request: {
+                            tipo: 'GET',
+                            descricao: 'Inserindo produtos',
+                            url: 'http://localhost:3000/produtos/'
+                        }
+                    }
+                }
+
+                res.status(201).send(response)
             }
-            //release nao acumula conexões
         )
     })
 
@@ -75,7 +97,7 @@ router.patch('/', (req, res, next) => {
 
             (error, resultado) => {
                 connection.release();
-                if (error) {return res.status(500).send({error: error})}
+                if (error) { return res.status(500).send({ error: error }) }
                 res.status(202).send({
                     mensagem: 'Produto alterado com sucesso!',
                 })
@@ -94,7 +116,7 @@ router.delete('/', (req, res, next) => {
 
             (error, resultado) => {
                 connection.release();
-                if (error) {return res.status(500).send({error: error})}
+                if (error) { return res.status(500).send({ error: error }) }
                 res.status(202).send({
                     mensagem: 'Produto removido com sucesso!',
                 })
