@@ -3,7 +3,16 @@ const router = express.Router();
 const mysql = require('../mysql').pool;
 
 const multer = require ('multer')
-const upload = multer({ dest: 'uploads/' })
+
+const storage = multer.diskStorage({
+    destination: function (req, file, callback){
+        callback(null, './uploads')
+    },
+    filename: function (req, file, callback){
+        callback(null, file.originalname)
+    }
+})
+const upload = multer({ storage: storage})
 
 router.get('/', (req, res, next) => {
 
@@ -37,7 +46,6 @@ router.get('/', (req, res, next) => {
 });
 
 router.post('/', upload.single('produto_imagem') ,(req, res, next) => {
-    console.log(req.file)
 
     mysql.getConnection((error, connection) => {
         connection.query(
