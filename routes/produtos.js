@@ -31,11 +31,7 @@ router.get('/', (req, res, next) => {
                             id_produto: prod.id_produto,
                             nome: prod.nome,
                             valor: prod.valor,
-                            request: {
-                                tipo: 'GET',
-                                descricao: 'Retornando todos os produtos',
-                                url: 'http://localhost:3000/produtos/' + prod.id_produto
-                            }
+                            imagem_produto: prod.imagem_produto
                         }
                     })
                 }
@@ -45,12 +41,16 @@ router.get('/', (req, res, next) => {
     })
 });
 
-router.post('/', upload.single('produto_imagem') ,(req, res, next) => {
-
+router.post('/', upload.single('file') ,(req, res, next) => {
+    console.log(req.file)
     mysql.getConnection((error, connection) => {
         connection.query(
-            'INSERT INTO produtos (nome, valor) VALUES (?, ?)',
-            [req.body.nome, req.body.valor],
+            'INSERT INTO produtos (nome, valor, imagem_produto) VALUES (?, ?, ?)',
+            [
+                req.body.nome, 
+                req.body.valor,
+                req.file.path
+            ],
 
             (error, result) => {
                 connection.release();
@@ -63,6 +63,7 @@ router.post('/', upload.single('produto_imagem') ,(req, res, next) => {
                         id_produto: result.id_produto,
                         nome: req.body.nome,
                         valor: req.body.valor,
+                        // imagem_produto: req.file.path,
                         request: {
                             tipo: 'GET',
                             descricao: 'Inserindo produtos',

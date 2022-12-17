@@ -6,6 +6,7 @@ const rotaProdutos = require('./routes/produtos');
 const rotaPedidos = require('./routes/pedidos');
 
 app.use(morgan('dev'));
+app.use('/uploads', express.static('uploads'))
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use((req, res, next) => {
