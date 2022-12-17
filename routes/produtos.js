@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const mysql = require('../mysql').pool;
 
+const multer = require ('multer')
+const upload = multer({ dest: 'uploads/' })
+
 router.get('/', (req, res, next) => {
 
     mysql.getConnection((error, connection) => {
@@ -33,7 +36,8 @@ router.get('/', (req, res, next) => {
     })
 });
 
-router.post('/', (req, res, next) => {
+router.post('/', upload.single('produto_imagem') ,(req, res, next) => {
+    console.log(req.file)
 
     mysql.getConnection((error, connection) => {
         connection.query(
