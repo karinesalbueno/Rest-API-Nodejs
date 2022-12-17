@@ -4,6 +4,7 @@ const app = express();
 
 const rotaProdutos = require('./routes/produtos');
 const rotaPedidos = require('./routes/pedidos');
+const rotaUsuarios = require ('./routes/usuarios')
 
 app.use(morgan('dev'));
 app.use('/uploads', express.static('uploads'))
@@ -25,6 +26,7 @@ app.use((req, res, next) => {
 
 app.use('/produtos', rotaProdutos)
 app.use('/pedidos', rotaPedidos)
+app.use('/usuario', rotaUsuarios)
 
 //Quando rota não é encontrada
 app.use((req, res, next) => {
