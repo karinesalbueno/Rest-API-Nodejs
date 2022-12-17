@@ -74,8 +74,8 @@ router.delete('/', (req, res, next)=>{
     mysql.getConnection((error, connection) => {
         connection.query(
             `DELETE from pedidos 
-                 WHERE id_pedidos = ?`,
-            [req.body.id_pedidos],
+                 WHERE id_pedido = ?`,
+            [req.body.id_pedido],
 
             (error, resultado) => {
                 connection.release();
