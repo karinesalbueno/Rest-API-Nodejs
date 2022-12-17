@@ -2,6 +2,18 @@ const express = require('express');
 const router = express.Router();
 const mysql = require('../mysql').pool;
 
+const multer = require ('multer')
+
+const storage = multer.diskStorage({
+    destination: function (req, file, callback){
+        callback(null, './uploads')
+    },
+    filename: function (req, file, callback){
+        callback(null, file.originalname)
+    }
+})
+const upload = multer({ storage: storage})
+
 router.get('/', (req, res, next) => {
 
     mysql.getConnection((error, connection) => {
@@ -19,11 +31,7 @@ router.get('/', (req, res, next) => {
                             id_produto: prod.id_produto,
                             nome: prod.nome,
                             valor: prod.valor,
-                            request: {
-                                tipo: 'GET',
-                                descricao: 'Retornando todos os produtos',
-                                url: 'http://localhost:3000/produtos/' + prod.id_produto
-                            }
+                            imagem_produto: prod.imagem_produto
                         }
                     })
                 }
@@ -33,12 +41,16 @@ router.get('/', (req, res, next) => {
     })
 });
 
-router.post('/', (req, res, next) => {
-
+router.post('/', upload.single('file') ,(req, res, next) => {
+    console.log(req.file)
     mysql.getConnection((error, connection) => {
         connection.query(
-            'INSERT INTO produtos (nome, valor) VALUES (?, ?)',
-            [req.body.nome, req.body.valor],
+            'INSERT INTO produtos (nome, valor, imagem_produto) VALUES (?, ?, ?)',
+            [
+                req.body.nome, 
+                req.body.valor,
+                req.file.path
+            ],
 
             (error, result) => {
                 connection.release();
@@ -51,6 +63,7 @@ router.post('/', (req, res, next) => {
                         id_produto: result.id_produto,
                         nome: req.body.nome,
                         valor: req.body.valor,
+                        // imagem_produto: req.file.path,
                         request: {
                             tipo: 'GET',
                             descricao: 'Inserindo produtos',
