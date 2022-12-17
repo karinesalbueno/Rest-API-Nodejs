@@ -8,7 +8,14 @@ router.get('/', (req, res, next) =>{
         if (error) { return res.status(500).send({ error: error }) }
 
         connection.query(
-            'SELECT * FROM pedidos',
+            `SELECT pedidos.id_pedido, 
+                   pedidos.quantidade,
+                   produtos.id_produto,
+                   produtos.nome,
+                   produtos.valor
+            FROM ecommerce.pedidos
+            inner join produtos
+            on produtos.id_produto = pedidos.id_produto; `,
             (error, result) => {
                 if (error) { return res.status(500).send({ error: error }) }
 
@@ -17,8 +24,12 @@ router.get('/', (req, res, next) =>{
                     pedidos: result.map(ped => {
                         return {
                             id_pedido: ped.id_pedido,
-                            id_produto: ped.id_produto,
                             quantidade: ped.quantidade,
+                            produto:{
+                                id_produto: ped.id_produto,
+                                nome: ped.nome,
+                                valor: ped.valor
+                            }
                         }
                     })
                 }
